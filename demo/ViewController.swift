@@ -156,7 +156,8 @@ class ViewController: UIViewController, SCNSceneRendererDelegate {
     
     private func scheduleEvents() {
         let bpm = 140.0
-        let tick = ((120.0 / bpm) / 8.0)
+        let bar = (120.0 / bpm) * 2.0
+        let tick = bar / 16.0
 
         perform(#selector(event), with: nil, afterDelay: tick)
     }

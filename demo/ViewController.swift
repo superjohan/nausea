@@ -12,6 +12,8 @@ import SceneKit
 import Foundation
 
 class ViewController: UIViewController, SCNSceneRendererDelegate {
+    let autostart = false
+    
     let audioPlayer: AVAudioPlayer
     let sceneView = SCNView()
     let camera = SCNNode()
@@ -104,6 +106,16 @@ class ViewController: UIViewController, SCNSceneRendererDelegate {
         self.sceneView.isHidden = true
 
         self.startButton.frame = CGRect(x: 0, y: 0, width: self.view.bounds.size.width, height: self.view.bounds.size.height)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        if (self.autostart) {
+            self.startButton.isUserInteractionEnabled = false
+            self.startButton.alpha = 0
+            start()
+        }
     }
     
     override func viewDidDisappear(_ animated: Bool) {

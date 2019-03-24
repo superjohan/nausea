@@ -138,8 +138,21 @@ class ViewController: UIViewController, SCNSceneRendererDelegate {
         self.sceneView.isHidden = false
         
         self.audioPlayer.play()
+        
+        scheduleEvents()
     }
     
+    private func scheduleEvents() {
+        let bpm = 140.0
+        let tick = ((120.0 / bpm) / 8.0)
+
+        perform(#selector(event), with: nil, afterDelay: tick)
+    }
+    
+    @objc private func event() {
+        // intentionally left blank
+    }
+
     fileprivate func createScene() -> SCNScene {
         let scene = SCNScene()
         scene.background.contents = UIColor.black

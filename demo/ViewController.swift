@@ -18,15 +18,16 @@ class ViewController: UIViewController {
     let startButton: UIButton
     let qtFoolingBgView: UIView = UIView.init(frame: CGRect.zero)
     let contentView = UIView(frame: .zero)
-    let byoopView: ByoopView
+    
+    var partViews = [ByoopRunnable]()
+    var position = 0
+    var currentView: ByoopRunnable?
 
     // MARK: - UIViewController
     
     init() {
         if let trackUrl = Bundle.main.url(forResource: "audio", withExtension: "m4a") {
-            guard let audioPlayer = try? AVAudioPlayer(contentsOf: trackUrl) else {
-                abort()
-            }
+            guard let audioPlayer = try? AVAudioPlayer(contentsOf: trackUrl) else { abort() }
             
             self.audioPlayer = audioPlayer
         } else {
@@ -51,12 +52,6 @@ class ViewController: UIViewController {
         self.startButton.titleLabel?.font = .systemFont(ofSize: 24)
         self.startButton.backgroundColor = UIColor.black
         
-        self.byoopView = ByoopView(
-            frame: .zero,
-            topGradient: gradientImage(topColor: .red, bottomColor: .orange),
-            bottomGradient: gradientImage(topColor: .blue, bottomColor: .purple)
-        )
-        
         super.init(nibName: nil, bundle: nil)
         
         self.startButton.addTarget(self, action: #selector(startButtonTouched), for: UIControl.Event.touchUpInside)
@@ -69,7 +64,6 @@ class ViewController: UIViewController {
         self.view.addSubview(self.qtFoolingBgView)
 
         self.contentView.isHidden = true
-        self.contentView.addSubview(self.byoopView)
         
         self.view.addSubview(self.contentView)
         
@@ -90,6 +84,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
 
         self.audioPlayer.prepareToPlay()
+//        self.audioPlayer.volume = 0
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -108,6 +103,40 @@ class ViewController: UIViewController {
 
         self.startButton.frame = self.contentView.frame
         self.startButton.autoresizingMask = self.contentView.autoresizingMask
+
+        self.partViews.append(
+            IntroView(byoopView: ByoopView(
+                frame: .zero,
+                topGradient: gradientImage(topColor: colors[5].topColor, bottomColor: colors[5].bottomColor),
+                bottomGradient: gradientImage(topColor: colors[4].topColor, bottomColor: colors[4].bottomColor)
+            ))
+        )
+        self.partViews.append(
+            IntroView(byoopView: ByoopView(
+                frame: .zero,
+                topGradient: gradientImage(topColor: colors[0].topColor, bottomColor: colors[0].bottomColor),
+                bottomGradient: gradientImage(topColor: colors[1].topColor, bottomColor: colors[1].bottomColor)
+            ))
+        )
+        self.partViews.append(
+            IntroView(byoopView: ByoopView(
+                frame: .zero,
+                topGradient: gradientImage(topColor: colors[2].topColor, bottomColor: colors[2].bottomColor),
+                bottomGradient: gradientImage(topColor: colors[4].topColor, bottomColor: colors[4].bottomColor)
+            ))
+        )
+        self.partViews.append(
+            IntroView(byoopView: ByoopView(
+                frame: .zero,
+                topGradient: gradientImage(topColor: colors[3].topColor, bottomColor: colors[3].bottomColor),
+                bottomGradient: gradientImage(topColor: colors[5].topColor, bottomColor: colors[5].bottomColor)
+            ))
+        )
+        
+        for view in self.partViews {
+            view.isHidden = true
+            self.contentView.addSubview(view)
+        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -150,13 +179,26 @@ class ViewController: UIViewController {
     private func scheduleEvents() {
         let eventCount = 64
         
-        for delay in 0..<eventCount {
-            perform(#selector(event), with: nil, afterDelay: TimeInterval(delay))
+        for position in 0..<eventCount {
+            perform(#selector(event), with: NSNumber(value: position), afterDelay: TimeInterval(position))
         }
     }
     
-    @objc private func event() {
-        self.byoopView.run(frame: self.view.bounds)
+    @objc private func event(pos: NSNumber) {
+        let positionInTrack = pos.intValue
+        
+        self.currentView?.isHidden = true
+        
+        let runnable = self.partViews[self.position]
+        runnable.isHidden = false
+        runnable.frame = self.view.bounds
+        runnable.run()
+        
+        self.currentView = runnable
+        
+        if positionInTrack % 2 == 1 {
+            self.position += 1
+        }
     }
 }
 
@@ -174,4 +216,40 @@ func gradientImage(topColor: UIColor, bottomColor: UIColor) -> UIImage {
     UIGraphicsEndImageContext()
     
     return image
+}
+
+struct Gradient {
+    let topColor: UIColor
+    let bottomColor: UIColor
+}
+
+let colors = [
+    Gradient( // purple
+        topColor: UIColor(red: 255 / 255.0, green: 52 / 255.0, blue: 255 / 255.0, alpha: 1.0),
+        bottomColor: UIColor(red: 255 / 255.0, green: 104 / 255.0, blue: 254 / 255.0, alpha: 1.0)
+    ),
+    Gradient( // cyan
+        topColor: UIColor(red: 102 / 255.0, green: 255 / 255.0, blue: 250 / 255.0, alpha: 1.0),
+        bottomColor: UIColor(red: 51 / 255.0, green: 255 / 255.0, blue: 248 / 255.0, alpha: 1.0)
+    ),
+    Gradient( // green
+        topColor: UIColor(red: 54 / 255.0, green: 255 / 255.0, blue: 83 / 255.0, alpha: 1.0),
+        bottomColor: UIColor(red: 102 / 255.0, green: 255 / 255.0, blue: 125 / 255.0, alpha: 1.0)
+    ),
+    Gradient( // blue
+        topColor: UIColor(red: 107 / 255.0, green: 102 / 255.0, blue: 255 / 255.0, alpha: 1.0),
+        bottomColor: UIColor(red: 60 / 255.0, green: 54 / 255.0, blue: 255 / 255.0, alpha: 1.0)
+    ),
+    Gradient( // yellow
+        topColor: UIColor(red: 255 / 255.0, green: 240 / 255.0, blue: 49 / 255.0, alpha: 1.0),
+        bottomColor: UIColor(red: 255 / 255.0, green: 244 / 255.0, blue: 102 / 255.0, alpha: 1.0)
+    ),
+    Gradient( // red
+        topColor: UIColor(red: 255 / 255.0, green: 50 / 255.0, blue: 50 / 255.0, alpha: 1.0),
+        bottomColor: UIColor(red: 255 / 255.0, green: 102 / 255.0, blue: 102 / 255.0, alpha: 1.0)
+    ),
+]
+
+protocol ByoopRunnable where Self: UIView {
+    func run()
 }

@@ -12,7 +12,7 @@ import SceneKit
 import Foundation
 
 class ViewController: UIViewController {
-    let autostart = true
+    let autostart = false
     let eventCount = 64
     
     let audioPlayer: AVAudioPlayer

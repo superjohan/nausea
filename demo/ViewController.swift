@@ -13,14 +13,17 @@ import Foundation
 
 class ViewController: UIViewController {
     let autostart = true
+    let eventCount = 64
     
     let audioPlayer: AVAudioPlayer
     let startButton: UIButton
     let qtFoolingBgView: UIView = UIView.init(frame: CGRect.zero)
     let contentView = UIView(frame: .zero)
-    
+    let nauseaView = UIImageView(image: UIImage(named: "nausea2"))
+    let topGradients: [Gradient]
+    let bottomGradients: [Gradient]
+
     var partViews = [ByoopRunnable]()
-    var position = 0
     var currentView: ByoopRunnable?
 
     // MARK: - UIViewController
@@ -40,7 +43,8 @@ class ViewController: UIViewController {
                 "\n" +
                 "programming and music by ricky martin\n" +
                 "\n" +
-                "please make this window full screen\n" +
+                "please make this window full screen.\n" +
+                "warning: this demo may be a little disorienting\n" +
                 "\n" +
                 "presented at jumalauta färjan mega winter party 2022\n" +
                 "\n" +
@@ -51,6 +55,31 @@ class ViewController: UIViewController {
         self.startButton.titleLabel?.lineBreakMode = NSLineBreakMode.byWordWrapping
         self.startButton.titleLabel?.font = .systemFont(ofSize: 24)
         self.startButton.backgroundColor = UIColor.black
+        
+        var topGradients = [Gradient]()
+        var bottomGradients = [Gradient]()
+        
+        for i in 0..<(self.eventCount + 1) {
+            let bottom = Double(i) / Double(self.eventCount)
+            let top = 1.0 - bottom
+            
+            topGradients.append(
+                Gradient(
+                    topColor: UIColor(white: top, alpha: 1.0),
+                    bottomColor: UIColor(white: top, alpha: 1.0)
+                )
+            )
+
+            bottomGradients.append(
+                Gradient(
+                    topColor: UIColor(white: bottom, alpha: 1.0),
+                    bottomColor: UIColor(white: bottom, alpha: 1.0)
+                )
+            )
+        }
+        
+        self.topGradients = topGradients
+        self.bottomGradients = bottomGradients
         
         super.init(nibName: nil, bundle: nil)
         
@@ -104,39 +133,32 @@ class ViewController: UIViewController {
         self.startButton.frame = self.contentView.frame
         self.startButton.autoresizingMask = self.contentView.autoresizingMask
 
-        self.partViews.append(
-            IntroView(byoopView: ByoopView(
-                frame: .zero,
-                topGradient: gradientImage(topColor: colors[5].topColor, bottomColor: colors[5].bottomColor),
-                bottomGradient: gradientImage(topColor: colors[4].topColor, bottomColor: colors[4].bottomColor)
-            ))
-        )
-        self.partViews.append(
-            IntroView(byoopView: ByoopView(
-                frame: .zero,
-                topGradient: gradientImage(topColor: colors[0].topColor, bottomColor: colors[0].bottomColor),
-                bottomGradient: gradientImage(topColor: colors[1].topColor, bottomColor: colors[1].bottomColor)
-            ))
-        )
-        self.partViews.append(
-            IntroView(byoopView: ByoopView(
-                frame: .zero,
-                topGradient: gradientImage(topColor: colors[2].topColor, bottomColor: colors[2].bottomColor),
-                bottomGradient: gradientImage(topColor: colors[4].topColor, bottomColor: colors[4].bottomColor)
-            ))
-        )
-        self.partViews.append(
-            IntroView(byoopView: ByoopView(
-                frame: .zero,
-                topGradient: gradientImage(topColor: colors[3].topColor, bottomColor: colors[3].bottomColor),
-                bottomGradient: gradientImage(topColor: colors[5].topColor, bottomColor: colors[5].bottomColor)
-            ))
-        )
+        for i in 0..<self.eventCount {
+            self.partViews.append(
+                IntroView(byoopView: ByoopView(
+                    frame: .zero,
+                    topGradient: gradientImage(
+                        topColor: self.topGradients[i].topColor,
+                        bottomColor: self.topGradients[i + 1].topColor
+                    ),
+                    bottomGradient: gradientImage(
+                        topColor: self.bottomGradients[i].topColor,
+                        bottomColor: self.bottomGradients[i + 1].bottomColor
+                    )
+                ))
+            )
+        }
         
         for view in self.partViews {
             view.isHidden = true
             self.contentView.addSubview(view)
         }
+     
+        self.nauseaView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        self.nauseaView.frame = self.contentView.bounds
+        self.nauseaView.layer.compositingFilter = "differenceBlendMode"
+        self.nauseaView.isHidden = true
+        self.contentView.addSubview(self.nauseaView)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -177,27 +199,31 @@ class ViewController: UIViewController {
     }
     
     private func scheduleEvents() {
-        let eventCount = 64
-        
-        for position in 0..<eventCount {
+        for position in 0...(self.eventCount + 2) {
             perform(#selector(event), with: NSNumber(value: position), afterDelay: TimeInterval(position))
         }
     }
     
     @objc private func event(pos: NSNumber) {
-        let positionInTrack = pos.intValue
+        let position = pos.intValue
         
         self.currentView?.isHidden = true
         
-        let runnable = self.partViews[self.position]
-        runnable.isHidden = false
-        runnable.frame = self.view.bounds
-        runnable.run()
+        if position < self.eventCount {
+            let runnable = self.partViews[position]
+            runnable.isHidden = false
+            runnable.frame = self.view.bounds
+            runnable.run()
         
-        self.currentView = runnable
-        
-        if positionInTrack % 2 == 1 {
-            self.position += 1
+            self.currentView = runnable
+        }
+
+        if position == 2 {
+            self.nauseaView.isHidden = false
+        } else if position == 64 {
+            self.currentView?.isHidden = true
+        } else if position == 66 {
+            self.nauseaView.isHidden = true
         }
     }
 }
@@ -222,33 +248,6 @@ struct Gradient {
     let topColor: UIColor
     let bottomColor: UIColor
 }
-
-let colors = [
-    Gradient( // purple
-        topColor: UIColor(red: 255 / 255.0, green: 52 / 255.0, blue: 255 / 255.0, alpha: 1.0),
-        bottomColor: UIColor(red: 255 / 255.0, green: 104 / 255.0, blue: 254 / 255.0, alpha: 1.0)
-    ),
-    Gradient( // cyan
-        topColor: UIColor(red: 102 / 255.0, green: 255 / 255.0, blue: 250 / 255.0, alpha: 1.0),
-        bottomColor: UIColor(red: 51 / 255.0, green: 255 / 255.0, blue: 248 / 255.0, alpha: 1.0)
-    ),
-    Gradient( // green
-        topColor: UIColor(red: 54 / 255.0, green: 255 / 255.0, blue: 83 / 255.0, alpha: 1.0),
-        bottomColor: UIColor(red: 102 / 255.0, green: 255 / 255.0, blue: 125 / 255.0, alpha: 1.0)
-    ),
-    Gradient( // blue
-        topColor: UIColor(red: 107 / 255.0, green: 102 / 255.0, blue: 255 / 255.0, alpha: 1.0),
-        bottomColor: UIColor(red: 60 / 255.0, green: 54 / 255.0, blue: 255 / 255.0, alpha: 1.0)
-    ),
-    Gradient( // yellow
-        topColor: UIColor(red: 255 / 255.0, green: 240 / 255.0, blue: 49 / 255.0, alpha: 1.0),
-        bottomColor: UIColor(red: 255 / 255.0, green: 244 / 255.0, blue: 102 / 255.0, alpha: 1.0)
-    ),
-    Gradient( // red
-        topColor: UIColor(red: 255 / 255.0, green: 50 / 255.0, blue: 50 / 255.0, alpha: 1.0),
-        bottomColor: UIColor(red: 255 / 255.0, green: 102 / 255.0, blue: 102 / 255.0, alpha: 1.0)
-    ),
-]
 
 protocol ByoopRunnable where Self: UIView {
     func run()

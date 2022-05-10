@@ -20,8 +20,8 @@ class ViewController: UIViewController {
     let qtFoolingBgView: UIView = UIView.init(frame: CGRect.zero)
     let contentView = UIView(frame: .zero)
     let nauseaView = UIImageView(image: UIImage(named: "nausea2"))
-    let topGradients: [Gradient]
-    let bottomGradients: [Gradient]
+    let topGradients: [UIImage]
+    let bottomGradients: [UIImage]
 
     var partViews = [ByoopRunnable]()
     var currentView: ByoopRunnable?
@@ -56,26 +56,23 @@ class ViewController: UIViewController {
         self.startButton.titleLabel?.font = .systemFont(ofSize: 24)
         self.startButton.backgroundColor = UIColor.black
         
-        var topGradients = [Gradient]()
-        var bottomGradients = [Gradient]()
+        var topColors = [UIColor]()
+        var bottomColors = [UIColor]()
         
         for i in 0..<(self.eventCount + 1) {
             let bottom = Double(i) / Double(self.eventCount)
             let top = 1.0 - bottom
             
-            topGradients.append(
-                Gradient(
-                    topColor: UIColor(white: top, alpha: 1.0),
-                    bottomColor: UIColor(white: top, alpha: 1.0)
-                )
-            )
+            topColors.append(UIColor(white: top, alpha: 1.0))
+            bottomColors.append(UIColor(white: bottom, alpha: 1.0))
+        }
 
-            bottomGradients.append(
-                Gradient(
-                    topColor: UIColor(white: bottom, alpha: 1.0),
-                    bottomColor: UIColor(white: bottom, alpha: 1.0)
-                )
-            )
+        var topGradients = [UIImage]()
+        var bottomGradients = [UIImage]()
+
+        for i in 0..<self.eventCount {
+            topGradients.append(gradientImage(topColor: topColors[i], bottomColor: topColors[i + 1]))
+            bottomGradients.append(gradientImage(topColor: bottomColors[i], bottomColor: bottomColors[i + 1]))
         }
         
         self.topGradients = topGradients
@@ -113,7 +110,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
 
         self.audioPlayer.prepareToPlay()
-//        self.audioPlayer.volume = 0
+        self.audioPlayer.volume = 0
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -137,14 +134,8 @@ class ViewController: UIViewController {
             self.partViews.append(
                 IntroView(byoopView: ByoopView(
                     frame: .zero,
-                    topGradient: gradientImage(
-                        topColor: self.topGradients[i].topColor,
-                        bottomColor: self.topGradients[i + 1].topColor
-                    ),
-                    bottomGradient: gradientImage(
-                        topColor: self.bottomGradients[i].topColor,
-                        bottomColor: self.bottomGradients[i + 1].bottomColor
-                    )
+                    topGradient: self.topGradients[i],
+                    bottomGradient: self.bottomGradients[i]
                 ))
             )
         }

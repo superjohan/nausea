@@ -38,7 +38,7 @@ class ViewController: UIViewController {
         }
         
         let startButtonText =
-            "\"byoop\"\n" +
+            "\"nausea\"\n" +
                 "by dekadence\n" +
                 "\n" +
                 "programming and music by ricky martin\n" +

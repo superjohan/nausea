@@ -131,12 +131,20 @@ class ViewController: UIViewController {
         self.startButton.autoresizingMask = self.contentView.autoresizingMask
 
         for i in 0..<self.eventCount {
+            let columns = Int.random(in: 0..<(i + 1))
+            var rows = [Int]()
+            
+            for _ in 0..<columns {
+                rows.append(Int.random(in: 0..<(i + 1)))
+            }
+            
             self.partViews.append(
-                IntroView(byoopView: ByoopView(
-                    frame: .zero,
-                    topGradient: self.topGradients[i],
-                    bottomGradient: self.bottomGradients[i]
-                ))
+                IntroView(
+                    columns: columns,
+                    rows: rows,
+                    topGradients: self.topGradients,
+                    bottomGradients: self.bottomGradients
+                )
             )
         }
         

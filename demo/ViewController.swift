@@ -45,7 +45,6 @@ class ViewController: UIViewController {
                 "programming and music by ricky martin\n" +
                 "\n" +
                 "please make this window full screen.\n" +
-                "warning: this demo may be a little disorienting\n" +
                 "\n" +
                 "presented at jumalauta färjan mega winter party 2022\n" +
                 "\n" +
@@ -200,7 +199,21 @@ class ViewController: UIViewController {
             runnable.isHidden = false
             runnable.frame = self.view.bounds
 
-            let maxRandom = position >= 32 ? 32 : position + 1
+            let maxRandom: Int
+            if position >= 0 && position < 8 {
+                maxRandom = 1
+            } else if position >= 8 && position < 16 {
+                maxRandom = 2
+            } else if position >= 16 && position < 32 {
+                maxRandom = self.maxRandom / 2
+            } else if position >= 32 && position < 48 {
+                maxRandom = 4
+            } else if position >= 48 && position < 64 {
+                maxRandom = self.maxRandom
+            } else {
+                maxRandom = 1
+            }
+            
             let columns = Int.random(in: 1...maxRandom)
             var rows = [Int]()
             

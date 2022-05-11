@@ -191,7 +191,9 @@ class ViewController: UIViewController {
         let position = pos.intValue
         
         self.currentView?.isHidden = true
-        
+        self.nauseaView.transform = .identity
+        self.nauseaView.layer.transform = CATransform3DIdentity
+
         if position < self.eventCount {
             let runnable = self.partViews[0]
             runnable.isHidden = false
@@ -206,8 +208,12 @@ class ViewController: UIViewController {
                 maxRandom = self.maxRandom / 2
             } else if position >= 32 && position < 48 {
                 maxRandom = 4
+                
+                adjustLogoView(harsh: false)
             } else if position >= 48 && position < 64 {
                 maxRandom = self.maxRandom
+                
+                adjustLogoView(harsh: true)
             } else {
                 maxRandom = 1
             }
@@ -234,6 +240,36 @@ class ViewController: UIViewController {
             self.currentView?.isHidden = true
         } else if position == 66 {
             self.nauseaView.isHidden = true
+        }
+    }
+    
+    func adjustLogoView(harsh: Bool) {
+        self.nauseaView.layer.zPosition = 500
+        self.nauseaView.layer.transform.m34 = -0.002
+        
+        let adjustType = Int.random(in: 0...3)
+        
+        if adjustType == 0 {
+            // do nothing
+        } else if adjustType == 1 {
+            let angle: Double
+            if harsh {
+                angle = Double.random(in: 1...Double.pi)
+            } else {
+                angle = Double.random(in: 0...1)
+            }
+            
+            let x = Double.random(in: -Double.pi...Double.pi)
+            let y = Double.random(in: -Double.pi...Double.pi)
+            let z = Double.random(in: -Double.pi...Double.pi)
+
+            UIView.animate(withDuration: 0.875, delay: 0, options: [.curveEaseOut], animations: {
+                self.nauseaView.layer.transform = CATransform3DRotate(self.nauseaView.layer.transform, angle, x, y, z)
+            }, completion: nil)
+        } else if adjustType == 2 {
+            self.nauseaView.layer.transform = CATransform3DRotate(self.nauseaView.layer.transform, CGFloat.pi, 1.0, 0, 0)
+        } else if adjustType == 3 {
+            self.nauseaView.layer.transform = CATransform3DRotate(self.nauseaView.layer.transform, CGFloat.pi, 0, 1.0, 0)
         }
     }
 }

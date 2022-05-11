@@ -15,7 +15,8 @@ class IntroView : UIView, ByoopRunnable {
     init(
         maxRandom: Int,
         topGradients: [UIImage],
-        bottomGradients: [UIImage]
+        bottomGradients: [UIImage],
+        randomizeGradients: Bool
     ) {
         var byoopViews = [ByoopView]()
         let maxViews = maxRandom * maxRandom

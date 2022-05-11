@@ -56,25 +56,23 @@ class ViewController: UIViewController {
         self.startButton.titleLabel?.font = .systemFont(ofSize: 24)
         self.startButton.backgroundColor = UIColor.black
         
-        var topColors = [UIColor]()
-        var bottomColors = [UIColor]()
-        
-        for i in 0..<(self.eventCount + 1) {
-            let bottom = Double(i) / Double(self.eventCount)
-            let top = 1.0 - bottom
-            
-            topColors.append(UIColor(white: top, alpha: 1.0))
-            bottomColors.append(UIColor(white: bottom, alpha: 1.0))
-        }
-
         var topGradients = [UIImage]()
         var bottomGradients = [UIImage]()
 
-        for i in 0..<self.eventCount {
-            topGradients.append(gradientImage(topColor: topColors[i], bottomColor: topColors[i + 1]))
-            bottomGradients.append(gradientImage(topColor: bottomColors[i], bottomColor: bottomColors[i + 1]))
-        }
+        topGradients.append(
+            gradientImage(
+                topColor: UIColor(white: 1.0, alpha: 1.0),
+                bottomColor: UIColor(white: 1.0, alpha: 1.0)
+            )
+        )
         
+        bottomGradients.append(
+            gradientImage(
+                topColor: UIColor(white: 0, alpha: 1.0),
+                bottomColor: UIColor(white: 0, alpha: 1.0)
+            )
+        )
+
         self.topGradients = topGradients
         self.bottomGradients = bottomGradients
         

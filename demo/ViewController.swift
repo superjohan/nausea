@@ -14,7 +14,8 @@ import Foundation
 class ViewController: UIViewController {
     let autostart = false
     let eventCount = 64
-    
+    let maxRandom = 32
+
     let audioPlayer: AVAudioPlayer
     let startButton: UIButton
     let qtFoolingBgView: UIView = UIView.init(frame: CGRect.zero)
@@ -110,7 +111,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
 
         self.audioPlayer.prepareToPlay()
-        self.audioPlayer.volume = 0
+//        self.audioPlayer.volume = 0
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -130,29 +131,15 @@ class ViewController: UIViewController {
         self.startButton.frame = self.contentView.frame
         self.startButton.autoresizingMask = self.contentView.autoresizingMask
 
-        for i in 0..<self.eventCount {
-            let columns = Int.random(in: 0..<(i + 1))
-            var rows = [Int]()
-            
-            for _ in 0..<columns {
-                rows.append(Int.random(in: 0..<(i + 1)))
-            }
-            
-            self.partViews.append(
-                IntroView(
-                    columns: columns,
-                    rows: rows,
-                    topGradients: self.topGradients,
-                    bottomGradients: self.bottomGradients
-                )
-            )
-        }
+        let view = IntroView(
+            maxRandom: self.maxRandom,
+            topGradients: self.topGradients,
+            bottomGradients: self.bottomGradients
+        )
+        view.isHidden = true
+        self.contentView.addSubview(view)
+        self.partViews.append(view)
         
-        for view in self.partViews {
-            view.isHidden = true
-            self.contentView.addSubview(view)
-        }
-     
         self.nauseaView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         self.nauseaView.frame = self.contentView.bounds
         self.nauseaView.layer.compositingFilter = "differenceBlendMode"
@@ -209,10 +196,23 @@ class ViewController: UIViewController {
         self.currentView?.isHidden = true
         
         if position < self.eventCount {
-            let runnable = self.partViews[position]
+            let runnable = self.partViews[0]
             runnable.isHidden = false
             runnable.frame = self.view.bounds
-            runnable.run()
+
+            let maxRandom = position >= 32 ? 32 : position + 1
+            let columns = Int.random(in: 1...maxRandom)
+            var rows = [Int]()
+            
+            for _ in 0..<columns {
+                rows.append(Int.random(in: 1...maxRandom))
+            }
+
+            runnable.run(
+                frame: self.view.bounds,
+                columns: columns,
+                rows: rows
+            )
         
             self.currentView = runnable
         }
@@ -249,5 +249,5 @@ struct Gradient {
 }
 
 protocol ByoopRunnable where Self: UIView {
-    func run()
+    func run(frame: CGRect, columns: Int, rows: [Int])
 }

@@ -10,55 +10,43 @@ import Foundation
 import UIKit
 
 class IntroView : UIView, ByoopRunnable {
-    let byoopViews: [[ByoopView]]
+    let byoopViews: [ByoopView]
 
     init(
-        columns: Int,
-        rows: [Int],
+        maxRandom: Int,
         topGradients: [UIImage],
         bottomGradients: [UIImage]
     ) {
-        var viewColumns = [[ByoopView]]()
-        var count = 0
-        
-        for column in 0..<columns {
-            let rowCount = rows[column]
-            var viewRows = [ByoopView]()
+        var byoopViews = [ByoopView]()
+        let maxViews = maxRandom * maxRandom
 
-            for _ in 0..<rowCount {
-                let topGradient: UIImage
-                let bottomGradient: UIImage
-                
-                if count % 2 == 0 {
-                    topGradient = topGradients[Int.random(in: 0..<(topGradients.count))]
-                    bottomGradient = bottomGradients[Int.random(in: 0..<(bottomGradients.count))]
-                } else {
-                    topGradient = bottomGradients[Int.random(in: 0..<(bottomGradients.count))]
-                    bottomGradient = topGradients[Int.random(in: 0..<(topGradients.count))]
-                }
-                
-                let view = ByoopView(
-                    frame: .zero,
-                    topGradient: topGradient,
-                    bottomGradient: bottomGradient
-                )
-                
-                viewRows.append(view)
-                
-                count += 1 // TODO: figure something out for the gradients
+        for i in 0..<maxViews {
+            let topGradient: UIImage
+            let bottomGradient: UIImage
+            
+            if i % 2 == 0 {
+                topGradient = topGradients[0]
+                bottomGradient = bottomGradients[0]
+            } else {
+                topGradient = bottomGradients[0]
+                bottomGradient = topGradients[0]
             }
             
-            viewColumns.append(viewRows)
+            let view = ByoopView(
+                frame: .zero,
+                topGradient: topGradient,
+                bottomGradient: bottomGradient
+            )
+            
+            byoopViews.append(view)
         }
         
-        self.byoopViews = viewColumns
-        
+        self.byoopViews = byoopViews
+
         super.init(frame: .zero)
         
-        for column in viewColumns {
-            for view in column {
-                addSubview(view)
-            }
+        for view in byoopViews {
+            addSubview(view)
         }
     }
     
@@ -66,20 +54,34 @@ class IntroView : UIView, ByoopRunnable {
         fatalError()
     }
     
-    func run() {
-        let columnWidth = self.bounds.size.width / CGFloat(self.byoopViews.count)
+    func run(frame: CGRect, columns: Int, rows: [Int]) {
+        self.frame = frame
         
-        for (columnIndex, column) in self.byoopViews.enumerated() {
-            let rowHeight = self.bounds.size.height / CGFloat(column.count)
+        let columnWidth = self.bounds.size.width / CGFloat(columns)
+        var viewCounter = 0
+        
+        for columnIndex in 0..<columns {
+            let rowCount = rows[columnIndex]
+            let rowHeight = self.bounds.size.height / CGFloat(rowCount)
             
-            for (rowIndex, view) in column.enumerated() {
-                view.run(frame: CGRect(
+            for rowIndex in 0..<rowCount {
+                let view = self.byoopViews[viewCounter]
+                view.isHidden = false
+                view.adjustFrames(frame: CGRect(
                     x: CGFloat(columnIndex) * columnWidth,
                     y: CGFloat(rowIndex) * rowHeight,
                     width: columnWidth,
                     height: rowHeight
                 ))
+                view.run()
+                
+                viewCounter += 1
             }
+        }
+        
+        while viewCounter < self.byoopViews.count {
+            self.byoopViews[viewCounter].isHidden = true
+            viewCounter += 1
         }
     }
 }

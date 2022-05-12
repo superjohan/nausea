@@ -272,7 +272,7 @@ class ViewController: UIViewController {
             if harsh {
                 angle = Double.random(in: 1...Double.pi)
             } else {
-                angle = Double.random(in: 0...1)
+                angle = Double.random(in: 0...0.1)
             }
             
             let x = Double.random(in: -Double.pi...Double.pi)

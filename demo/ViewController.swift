@@ -265,9 +265,19 @@ class ViewController: UIViewController {
         
         let adjustType = Int.random(in: 0...3)
         
+        var rotate = harsh
+
         if adjustType == 0 {
             // do nothing
         } else if adjustType == 1 {
+            rotate = true
+        } else if adjustType == 2 {
+            self.nauseaView.layer.transform = CATransform3DRotate(self.nauseaView.layer.transform, CGFloat.pi, 1.0, 0, 0)
+        } else if adjustType == 3 {
+            self.nauseaView.layer.transform = CATransform3DRotate(self.nauseaView.layer.transform, CGFloat.pi, 0, 1.0, 0)
+        }
+        
+        if rotate {
             let angle: Double
             if harsh {
                 angle = Double.random(in: 1...Double.pi)
@@ -282,10 +292,6 @@ class ViewController: UIViewController {
             UIView.animate(withDuration: 0.875, delay: 0, options: [.curveEaseOut], animations: {
                 self.nauseaView.layer.transform = CATransform3DRotate(self.nauseaView.layer.transform, angle, x, y, z)
             }, completion: nil)
-        } else if adjustType == 2 {
-            self.nauseaView.layer.transform = CATransform3DRotate(self.nauseaView.layer.transform, CGFloat.pi, 1.0, 0, 0)
-        } else if adjustType == 3 {
-            self.nauseaView.layer.transform = CATransform3DRotate(self.nauseaView.layer.transform, CGFloat.pi, 0, 1.0, 0)
         }
     }
 }

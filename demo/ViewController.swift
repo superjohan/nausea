@@ -131,12 +131,23 @@ class ViewController: UIViewController {
         let view = IntroView(
             maxRandom: self.maxRandom,
             topGradients: self.topGradients,
-            bottomGradients: self.bottomGradients
+            bottomGradients: self.bottomGradients,
+            flip: true
         )
         view.isHidden = true
         self.contentView.addSubview(view)
         self.partViews.append(view)
-        
+
+        let view2 = IntroView(
+            maxRandom: self.maxRandom,
+            topGradients: self.topGradients,
+            bottomGradients: self.bottomGradients,
+            flip: false
+        )
+        view2.isHidden = true
+        self.contentView.addSubview(view2)
+        self.partViews.append(view2)
+
         self.nauseaView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         self.nauseaView.frame = self.contentView.bounds
         self.nauseaView.layer.compositingFilter = "differenceBlendMode"
@@ -195,7 +206,12 @@ class ViewController: UIViewController {
         self.nauseaView.layer.transform = CATransform3DIdentity
 
         if position < self.eventCount {
-            let runnable = self.partViews[0]
+            let runnable: ByoopRunnable
+            if position >= 32 {
+                runnable = self.partViews[position % 2]
+            } else {
+                runnable = self.partViews[0]
+            }
             runnable.isHidden = false
             runnable.frame = self.view.bounds
 

@@ -15,7 +15,8 @@ class IntroView : UIView, ByoopRunnable {
     init(
         maxRandom: Int,
         topGradients: [UIImage],
-        bottomGradients: [UIImage]
+        bottomGradients: [UIImage],
+        flip: Bool
     ) {
         var byoopViews = [ByoopView]()
         let maxViews = maxRandom * maxRandom
@@ -24,7 +25,7 @@ class IntroView : UIView, ByoopRunnable {
             let topGradient: UIImage
             let bottomGradient: UIImage
             
-            if i % 2 == 0 {
+            if !flip || i % 2 == 0 {
                 topGradient = topGradients[0]
                 bottomGradient = bottomGradients[0]
             } else {
